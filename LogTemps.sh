@@ -26,13 +26,14 @@ echo "$(timestamp) | INFO | temperature logging started" >> $LOGGING_FILE
 while [ true ]
    do
    SENSE=$(sensors)
-   CHIPSET=$(echo "${SENSE}" | grep "Chipset:      \+")
-   CPU=$(echo "${SENSE}" | grep "CPU:          \+")
-   MOTHERBOARD=$(echo "${SENSE}" | grep "Motherboard:")
-   EDGE=$(echo "${SENSE}" | grep "edge")
-   JUNC=$(echo "${SENSE}" | grep "junc")
-   MEM=$(echo "${SENSE}" | grep "mem")
-   echo "$(timestamp) | INFO | {\"chipset\":\"${CHIPSET}\",\"cpu\":\"${CPU}\",\"motherboard\":\"${MOTHERBOARD}\",\"edge\":\"${EDGE}\",\"junc\":\"${JUNC}\",\"mem\":\"${MEM}\"}" >> $LOGGING_FILE
+   CHIPSET=$(echo "${SENSE}" | grep "Chipset:      \+" | grep -Eo "([\+0-9.]+)")
+   CPU=$(echo "${SENSE}" | grep "CPU:          \+" | grep -Eo "([\+0-9.]+)")
+   MOTHERBOARD=$(echo "${SENSE}" | grep "Motherboard:" | grep -Eo "([\+0-9.]+)")
+   EDGE=$(echo "${SENSE}" | grep "edge" | grep -Eo "([\+0-9.]+)" | head -1)
+   JUNC=$(echo "${SENSE}" | grep "junc" | grep -Eo "([\+0-9.]+)" | head -1)
+   MEM=$(echo "${SENSE}" | grep "mem" | grep -Eo "([\+0-9.]+)" | head -1)
+   JSON=$(echo "{\"chipset\":\"${CHIPSET}\",\"cpu\":\"${CPU}\",\"motherboard\":\"${MOTHERBOARD}\",\"edge\":\"${EDGE}\",\"junc\":\"${JUNC}\",\"mem\":\"${MEM}\"}" | sed 's/ //g')
+   echo "$(timestamp) | INFO | $JSON" >> $LOGGING_FILE
    ###TODO
    # Parameterise?
    ###
